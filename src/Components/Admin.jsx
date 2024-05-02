@@ -31,9 +31,7 @@ function Login(props) {
   };
 
   return (
-    <div class="row d-flex flex-column justify-content-center align-items-center">
-        <div class="col-md-6 text-white bg-dark-transparent p-2">
-
+    <div>
       <h2>Login</h2>
       <form>
         <div>
@@ -60,13 +58,13 @@ function Login(props) {
         {error && <p style={{ color: 'red' }}>{error}</p>}
       </form>
     </div>
-    </div>
   );
 }
 
 
 
 function Admin({ startElection, handleAddCandidate, handleRemoveCandidate, getCandidates, candidates }) {
+  const [voters, setVoters] = useState([]);
   const [candidateName, setCandidateName] = useState('');
   const [electionDuration, setElectionDuration] = useState(0);
   const [adminName, setAdminName] = useState(null);
@@ -74,7 +72,31 @@ function Admin({ startElection, handleAddCandidate, handleRemoveCandidate, getCa
   if (Array.isArray(candidates) && candidates.length === 0) {
         getCandidates();
     }
+    
+   
+    
 
+  const fetchVoters = async() => {
+  await fetch("http://localhost:3000/api/voters")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      setVoters(data);
+    })
+    .catch((error) => {
+      console.error("Error fetching voters:", error);
+    });
+};
+
+ if (Array.isArray(voters) && voters.length === 0) {
+
+      fetchVoters();
+      console.log(voters);
+  }
   
   const handleAddCandidateClick = () => {
     if (candidateName.trim() !== '') {
@@ -131,16 +153,16 @@ function Admin({ startElection, handleAddCandidate, handleRemoveCandidate, getCa
     //     <button onClick={handleStartElectionClick}>Start Election</button>
     //   </div>
     // </div>
+<section className="container d-flex align-items-center justify-content-center vh-100">
+    <div className='text-white bg-dark-transparent p-2'>
 
-    <div>
       {
         (adminName)?
-        (<div class="row d-flex flex-column justify-content-center align-items-center">
-        <div class="col-md-6 text-white bg-dark-transparent">
+        (<div>
           <h2>Admin Panel</h2>
     
           {/* <!-- Black transparent box to highlight important areas --> */}
-          <div class="p-3 mb-4">
+          <div >
             <h3>Add Candidate</h3>
             <div class="input-group">
               <input
@@ -154,8 +176,11 @@ function Admin({ startElection, handleAddCandidate, handleRemoveCandidate, getCa
             </div>
           </div>
     
-          {/* <!-- Table for Candidate List --> */}
-          <div class="table-responsive">
+
+          <div class="row mt-4">
+    <div class="col-md-6">
+       {/* <!-- Table for Candidate List --> */}
+       <div class="table-responsive">
             <table class="table table-bordered table-striped text-white">
               <thead>
                 <tr>
@@ -173,9 +198,44 @@ function Admin({ startElection, handleAddCandidate, handleRemoveCandidate, getCa
               </tbody>
             </table>
           </div>
+    </div>
+    <div class="col-md-6">
+    <div className="table-responsive">
+        <h3>Voter List</h3>
+        <table className="table table-bordered table-striped text-white">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Aadhaar Number</th>
+              <th>Name</th>
+              <th>Date of Birth</th>
+              <th>Phone Number</th>
+            </tr>
+          </thead>
+          <tbody>
+            {voters.map((voter, index) => (
+              <tr key={index}>
+                <td>{voter.id}</td>
+                <td>{voter.aadhaar_number}</td>
+                <td>{voter.name}</td>
+                <td>{voter.dob}</td>
+                <td>{voter.phone_number}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+         
+
+          {/* Voter List Table
+      */}
+
     
           {/* <!-- Black transparent box to highlight important areas --> */}
-          <div class=" p-3 mt-4">
+          <div >
             <h3>Start Election</h3>
             <div class="input-group">
               <input
@@ -188,12 +248,15 @@ function Admin({ startElection, handleAddCandidate, handleRemoveCandidate, getCa
               <button class="btn btn-success" onClick={handleStartElectionClick}>Start Election</button>
             </div>
           </div>
-        </div>
-      </div>):
+      </div>
+    
+          
+    ):
 
       (<Login setAdminName = {setAdminName}/>)
     }
     </div>
+</section>
   );
 }
 

@@ -53,6 +53,22 @@ app.get('/getPhoneNumber', (req, res) => {
   });
 });
 
+app.get('/api/voters', (req, res) => {
+  // Query to fetch all voters from the users table
+  const query = 'SELECT * FROM users';
+
+  // Execute the query
+  connection.query(query, (error, results) => {
+    if (error) {
+      console.error('Error fetching voters:', error);
+      res.status(500).json({ error: 'Error fetching voters' });
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+
 // Route for adding a new user to the users table
 app.post('/addUser', (req, res) => {
   const { aadhaarNumber, name, dob, phoneNumber } = req.body;

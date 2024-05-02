@@ -2,10 +2,12 @@
   background-image: url('../public/Voting-Provider-Image.jpg');
   background-size: cover;
   background-repeat: no-repeat;
+  background-attachment: fixed;
+
   background-position: center;
-  min-height: 100vh;
-  background-size: 200%;
-  background-position: 50% 40%;
+  /* min-height: 100vh; */
+  /* background-size: 200%; */
+  /* background-position: 50% 40%; */
   backdrop-filter: blur(20%);
 }
 

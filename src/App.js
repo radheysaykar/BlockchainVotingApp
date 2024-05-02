@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { Toaster } from 'react-hot-toast';
 import {ethers} from 'ethers';
+import Welcome from './Components/welcome.jsx';
+import Navbar from './Components/Navbar.jsx';
 import PhoneNoLogin from './Components/PhoneNoLogin.jsx';
 import Finished from './Components/Finished';
 import Admin from './Components/Admin';
@@ -15,7 +17,7 @@ function App() {
   const [remainingTime, setremainingTime] = useState('');
   const [electionStartedStatus, setElectionStartedStatus] = useState(false);
   const [candidates, setCandidates] = useState([]);
-  const [CanVote, setCanVote] = useState(false);
+  const [CanVote, setCanVote] = useState(false); // false : voter already done voting
   const [voterID, setvoterID] = useState(null);
   const [winner, setWinner] = useState(null);
   const [voteData, setVoteData] = useState(null);
@@ -319,17 +321,17 @@ function App() {
     canVote();
   }, [voterID]);
 
-async function vote(candidateNumber) {
+async function vote(candidate) {
   try {
     if (!contract) return;
 
-    console.log(voterID, candidateNumber);
-    const tx = await contract.vote(voterID, parseInt(candidateNumber, 10));
+    console.log(voterID, candidate.index);
+    const tx = await contract.vote(voterID, parseInt(candidate.index, 10));
 
     await tx.wait();
     console.log("voting successful");
     toast.success('Voting successful! Thank you for your voting!');
-
+    toast.success(`Your vote was recorded for candidate ${candidate.name}`);
     await canVote();
   } catch (error) {
     console.error('Error while voting:', error);
@@ -363,7 +365,7 @@ async function canVote() {
 async function verifyVote() {
   try {
     if (!contract) return;
-
+    if (CanVote) return;
     const [vote, voteIndex] = await contract.VerifyVote(voterID);
     const numberA = Number(vote);
     const numberB = Number(voteIndex);
@@ -530,12 +532,13 @@ const logout = () => {
 
   return (
     <div className="App">
+      <Navbar/>
       <Router>
-      <div>
         <Routes>
+          <Route path="/" element={<Welcome/>} />
           <Route path="/admin" element={<Admin startElection={startElection} handleAddCandidate={handleAddCandidate} handleRemoveCandidate={handleRemoveCandidate} getCandidates={getCandidates} candidates = {candidates}/>} />
           <Route path="/register" element={<Registration/>} />
-          <Route path="/"
+          <Route path="/voter"
             element={ 
               (voterID !== null) ? 
                   (electionStartedStatus?
@@ -554,7 +557,6 @@ const logout = () => {
               <PhoneNoLogin setvoterID = {setvoterID}/>
             } />
         </Routes>
-      </div>
     </Router>
       
       <Toaster />

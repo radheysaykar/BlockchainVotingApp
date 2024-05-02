@@ -27,7 +27,7 @@ contract Voting {
     uint256 public votingEnd;
 
     constructor(string[] memory _candidateNames) {
-        uint256 i = 0;
+        uint256 i = 1;
         for (; i < _candidateNames.length; i++) {
             candidates[i] = Candidate({
                 name: _candidateNames[i],
