@@ -293,8 +293,9 @@ if (!response.ok) {
   throw new Error('Network response was not ok');
 }
 const data = await response.json();
-console.log("candidateList.........from.........db", data)
+
     setCandidates(data);
+    console.log("candidateList.........from.........db", candidates)
   } catch (error) {
     console.error('Error while fetching candidates:', error);
     // Handle error gracefully (e.g., show an error message to the user)

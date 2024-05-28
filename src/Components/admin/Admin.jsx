@@ -213,7 +213,7 @@ function Login(props) {
 //   );
 // };
 
-const StartEndElection = ({setVotingStartEndTime, getVotingStartTime, getVotingEndTime}) => {
+const StartEndElection = ({setVotingStartEndTime, getVotingStartTime, getVotingEndTime, getCandidates}) => {
   const [startDate, setStartDate] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -376,6 +376,14 @@ function Home({setVotingStartEndTime, getVotingStartTime, getVotingEndTime, hand
 }
 
 function CandidateList({candidates, handleRemoveCandidateClick, handleAddCandidateClick, candidateName, setCandidateName}) {
+  // const [candidatelist, setCandidatelist] = useState(candidates[0]);
+
+
+
+  // useEffect(() => {
+  //   setCandidateList(candidates[0]);
+    console.log("candidates************111100***", candidates)
+  // }); 
   return (
     
     <div class="table-responsive">
@@ -383,15 +391,24 @@ function CandidateList({candidates, handleRemoveCandidateClick, handleAddCandida
         <thead>
           <tr>
             <th>Candidate Name</th>
-            <th>Action</th>
+            <th>aadhaar_number</th>
+            <th>party</th>
+            <th>dob</th>
+            <th>phone_number</th>
+            {/* <th>Action</th> */}
           </tr>
-        </thead>
+        </thead> 
         <tbody>
           {candidates.map((candidate, index) => (
             <tr key={index}>
               <td>{candidate.name}</td>
-              <td><button class="btn btn-danger" onClick={() => handleRemoveCandidateClick(index)}>Remove</button></td>
+              <td>{candidate.aadhaar_number}</td>
+              <td>{candidate.party}</td>
+              <td>{candidate.dob}</td>
+              <td>{candidate.phone_number}</td>
+              {/* <td><button class="btn btn-danger" onClick={() => handleRemoveCandidateClick(index)}>Remove</button></td> */}
             </tr>
+           
           ))}
         </tbody>
       </table>
@@ -432,15 +449,14 @@ function VoterList({voters}) {
 
 
 
-function Admin({setVotingStartEndTime, getVotingStartTime, getVotingEndTime, startElection, handleAddCandidate, handleRemoveCandidate, getCandidates, candidates }) {
+function Admin({setVotingStartEndTime, getVotingStartTime, getVotingEndTime, startElection, handleAddCandidate, handleRemoveCandidate }) {
   const [voters, setVoters] = useState([]);
+  const [candidates, setCandidates] = useState([]);
   const [candidateName, setCandidateName] = useState('');
   const [electionDuration, setElectionDuration] = useState(0);
   const [adminName, setAdminName] = useState(null);
 
-  if (Array.isArray(candidates) && candidates.length === 0) {
-        getCandidates();
-    }
+
     
   useEffect(() => {
     // if (username === null) {
@@ -448,7 +464,7 @@ function Admin({setVotingStartEndTime, getVotingStartTime, getVotingEndTime, sta
     // } else {
     //   Cookies.set('username', username, { expires: 7 }); // Expires in 7 days
     // }
-    
+    // console.log("response***********",candidates)
     if (adminName === null) {  //useful at reload
       const adminName = Cookies.get('adminName');
       if(adminName)  setAdminName(decrypt(adminName));
@@ -456,19 +472,21 @@ function Admin({setVotingStartEndTime, getVotingStartTime, getVotingEndTime, sta
 
   }, []);
   
-    
+ 
+
 
   const fetchVoters = async() => {
 
   await fetch(process.env.REACT_APP_API_BASE_URL+"/api/voters")
     .then((response) => {
+      
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
       return response.json();
     })
     .then((data) => {
-      setVoters(data);
+      setVoters(data[0]);
     })
     .catch((error) => {
       console.error("Error fetching voters:", error.message);
@@ -480,6 +498,25 @@ function Admin({setVotingStartEndTime, getVotingStartTime, getVotingEndTime, sta
       fetchVoters();
       console.log("***************voters", voters);
   }
+
+
+  const fetchCandidates = async() => {
+
+    const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/candidates`);
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  const data = await response.json();
+  
+      setCandidates(data);
+
+  };
+  
+   if (Array.isArray(candidates) && candidates.length === 0) {
+  
+        fetchCandidates();
+        console.log("***************candidates", candidates);
+    }
   
   const handleAddCandidateClick = () => {
     if (candidateName.trim() !== '') {
@@ -518,7 +555,7 @@ function Admin({setVotingStartEndTime, getVotingStartTime, getVotingEndTime, sta
           <Navbar logout = {logout}/>
           <Home setVotingStartEndTime={setVotingStartEndTime} getVotingStartTime={getVotingStartTime} getVotingEndTime={getVotingEndTime} handleStartElectionClick = {handleStartElectionClick} setElectionDuration = {setElectionDuration} electionDuration = {electionDuration}/>
           <VoterList voters = {voters}/>
-          <CandidateList candidates = {candidates} handleAddCandidateClick = {handleAddCandidateClick} handleRemoveCandidateClick = {handleRemoveCandidateClick}/>
+          <CandidateList candidates = {candidates[0]} handleAddCandidateClick = {handleAddCandidateClick} handleRemoveCandidateClick = {handleRemoveCandidateClick}/>
           {/* <Routes>
             <Route path="/" element={} />
             <Route path="/voterlist" element={} />
