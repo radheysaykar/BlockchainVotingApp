@@ -1,0 +1,105 @@
+/* Connected.css */
+
+.container {
+    min-height: 100vh;
+    background-color: #f7fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.content {
+    background-color: #ffffff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    max-width: 36rem;
+    width: 100%;
+}
+
+.header {
+    margin-bottom: 1rem;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+}
+
+.account {
+    color: #718096;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+.table {
+    min-width: 100%;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+}
+
+.table-header {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #edf2f7;
+    background-color: #f7fafc;
+    text-align: left;
+    color: #2d3748;
+}
+
+.table-row:hover {
+    background-color: #edf2f7;
+}
+
+.table-cell {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.button-cell {
+    text-align: right;
+}
+
+.vote-button {
+    padding: 0.5rem 1rem;
+    background-color: #10b981;
+    color: #ffffff;
+    border-radius: 0.25rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.vote-button:hover,
+.vote-button:focus {
+    background-color: #059669;
+}
+
+.message {
+    color: #718096;
+    margin-top: 1rem;
+}
+
+.footer {
+    margin-top: 1.5rem;
+    text-align: right;
+}
+
+.logout-button {
+    padding: 0.5rem 1rem;
+    background-color: #ef4444;
+    color: #ffffff;
+    border-radius: 0.25rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.logout-button:hover,
+.logout-button:focus {
+    background-color: #dc2626;
+}

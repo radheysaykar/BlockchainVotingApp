@@ -12,7 +12,7 @@ import { toast, Toaster } from "react-hot-toast";
 const App = (props) => {
   const [otp, setOtp] = useState("");
   const [ph, setPh] = useState("919767781389");
-  const [aadhaarNumber, setAadhaarNumber] = useState("012345678910");
+  const [aadhaarNumber, setAadhaarNumber] = useState("123456788821");
   const [loading, setLoading] = useState(false);
   const [showOTP, setShowOTP] = useState(false);
 
@@ -39,7 +39,7 @@ const App = (props) => {
 
   async function onSignup() {
     try {
-      if(aadhaarNumber == "012345678910") props.setvoterID(aadhaarNumber);
+      if(aadhaarNumber == "123456788821") props.setvoterID(aadhaarNumber);
       setLoading(true);
       onCaptchVerify().catch((err) => {
         console.log(err);
@@ -47,12 +47,12 @@ const App = (props) => {
 
       const appVerifier = window.recaptchaVerifier;
 
-      const response = await fetch(`http://localhost:3000/getPhoneNumber?aadhaarNumber=${aadhaarNumber}`);
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/getPhoneNumber?aadhaarNumber=${aadhaarNumber}`);
       const data = await response.json();
       setPh(data.phoneNumber);
 
       const formatPh = "+" + data.phoneNumber;
-      // console.log("ph... ",ph);
+      console.log("ph... ",formatPh);
 
       signInWithPhoneNumber(auth, formatPh, appVerifier)
         .then((confirmationResult) => {
@@ -76,6 +76,7 @@ const App = (props) => {
       .confirm(otp)
       .then(async (res) => {
         console.log(res);
+
         props.setvoterID(aadhaarNumber);
         console.log("res.user... ", ph);
         

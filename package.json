@@ -6,9 +6,11 @@
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
-    "dotenv": "^16.0.3",
+    "crypto-js": "^4.2.0",
+    "dotenv": "^16.4.5",
     "ethers": "^6.11.1",
     "firebase": "^9.15.0",
+    "js-cookie": "^3.0.5",
     "otp-input-react": "^0.3.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -44,6 +46,9 @@
     ]
   },
   "devDependencies": {
-    "hardhat": "^2.19.5"
+    "autoprefixer": "^10.4.19",
+    "hardhat": "^2.19.5",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.3"
   }
 }

@@ -3,17 +3,18 @@ pragma solidity ^0.8.0;
 
 contract Voting {
     struct Candidate {
-        string name;
+        string candidateHash;
         uint256 voteCount;
     }
     
     struct Voter {
+        string voterHash;
         bool voted;
-        uint256 vote;
+        string vote;
         uint256 voteIndex;
     }
 
-    mapping(uint256 => Candidate) public candidates;
+    mapping(string => Candidate) public candidates;
     
     uint256 public lastcandidateindex;
 
@@ -27,7 +28,7 @@ contract Voting {
     uint256 public votingEnd;
 
     constructor(string[] memory _candidateNames) {
-        uint256 i = 1;
+       /* uint256 i = 1;
         for (; i < _candidateNames.length; i++) {
             candidates[i] = Candidate({
                 name: _candidateNames[i],
@@ -39,7 +40,7 @@ contract Voting {
 
         owner = msg.sender;
 
-        electionStartedFlag = false;
+        electionStartedFlag = false;*/
     }
 
 
@@ -50,7 +51,7 @@ contract Voting {
     }
     
 
-
+/*
     function startElection(uint256 _durationInMinutes) public {
         require(electionStartedFlag == false, "Election already started");
         electionStartedFlag = true;
@@ -58,31 +59,41 @@ contract Voting {
         votingStart = block.timestamp;
         votingEnd = block.timestamp + (_durationInMinutes * 1 minutes);
     }    
+*/
+
+    function setDates(uint256 _startDateTime, uint256 _endDateTime) public {
+        require(votingEnd == 0 && votingStart == 0, "Voting dates already set");
+       // require(_startDateTime > block.timestamp, "Start date and time must be in the future");
+        require(_endDateTime > _startDateTime, "End date and time must be after the start date and time");
+        
+        votingStart = _startDateTime;
+        votingEnd = _endDateTime;
+    }
 
     function addCandidate(string memory _name) public onlyOwner {
-        require(electionStartedFlag == false, "Election started");
+      /*  require(electionStartedFlag == false, "Election started");
 
         candidates[lastcandidateindex + 1] = (Candidate({
                 name: _name,
                 voteCount: 0
         }));
 
-        lastcandidateindex++;
+        lastcandidateindex++;*/
     }
 
-    function removeCandidate(uint256 index) public onlyOwner {
+  /*  function removeCandidate(uint256 index) public onlyOwner {
         require(electionStartedFlag == false, "Election started");
         require(lastcandidateindex >= index, "Invalid index");
         
         delete candidates[index];
     }
-
-    function vote(string memory voterID, uint256 _candidateIndex) public {
-        require(!IDtoVoter[voterID].voted, "You have already voted.");
-        require(_candidateIndex <= lastcandidateindex, "Invalid candidate index.");
+*/
+    function vote(string memory voterID, string memory _candidateIndex) public {
+        require(!IDtoVoter[voterID].voted, "Voter have already voted.");
+        //require(_candidateIndex <= lastcandidateindex, "Invalid candidate index.");
         require(block.timestamp >= votingStart);
         require(block.timestamp < votingEnd);
-        require(electionStartedFlag == true, "Election not started");
+        //require(electionStartedFlag == true, "Election not started");
         
 
         candidates[_candidateIndex].voteCount++;
@@ -90,26 +101,28 @@ contract Voting {
         IDtoVoter[voterID].vote = _candidateIndex;
         IDtoVoter[voterID].voteIndex = candidates[_candidateIndex].voteCount;
     }
-
-    function VerifyVote(string memory voterID) public view returns (uint256, uint256) {
+/*
+    function VerifyVote(string memory voterID) public view returns (string, uint256) {
         return (IDtoVoter[voterID].vote, IDtoVoter[voterID].voteIndex);
     }
-
+*/
     function hasVoted(string memory voterID) public view returns (bool) {
         return (IDtoVoter[voterID].voted);
+        
     } 
 
     function electionStarted() public view returns (bool) {
         return electionStartedFlag;
     } 
 
-    function getCandidate(uint256 _candidateIndex) public view returns (Candidate memory){
-        return candidates[_candidateIndex];
+    function getCandidate(string _candidateIndex) public view returns (Candidate memory){
+        return candidates[_candidateIndex].voteCount;
     }
 
-    function getVotingStatus() public view returns (bool) {
+    /*function getVotingStatus() public view returns (bool) {
         return (block.timestamp >= votingStart && block.timestamp < votingEnd);
     }
+    
 
     function getRemainingTime() public view returns (uint256) {
 
@@ -118,7 +131,19 @@ contract Voting {
         }
         return votingEnd - block.timestamp;
     }
-    function getIndexOfMaxVoteCount() public view returns (uint256) {
+
+    */
+
+    function getStartingTime() public view returns (uint256) {
+
+        return votingStart;
+    }
+
+    function getEndingTime() public view returns (uint256) {
+
+    return votingEnd;
+    }
+    function getIndexOfMaxVoteCount() public view returns (string) {
         require(lastcandidateindex >= 0, "No candidates available.");
 
         uint256 maxVoteCount = 0;

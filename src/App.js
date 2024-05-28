@@ -1,16 +1,41 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect ,useRef} from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { Toaster } from 'react-hot-toast';
 import {ethers} from 'ethers';
-import Welcome from './Components/welcome.jsx';
-import Navbar from './Components/Navbar.jsx';
+import Welcome from './Components/welcome/welcome.jsx';
 import PhoneNoLogin from './Components/PhoneNoLogin.jsx';
 import Finished from './Components/Finished';
-import Admin from './Components/Admin';
-import Registration from './Components/registration.jsx';
-import Connected from './Components/Connected';
-import './App.css';
+import Admin from './Components/admin/Admin.jsx';
+import Candidates from './Components/candidates/Candidates.jsx';
+import Registration from './Components/registration/registration.jsx';
+import Connected from './Components/connected/Connected.jsx';
+import SimpleStorageABI from './MyContractABI.json';
+  
+// import './App.css';  
+function GoToMenu() {
+  return (
+    <div style={{ position: 'fixed', up: '20px', right: '20px' }}>
+      <a href="/">
+        Go to the Main Page
+      </a>
+    </div>
+  );
+}
+
+
+function VotingNotStartedDisplay() {
+
+  return (
+    <div className="popup-overlay">
+      <div className="popup-content">
+        <h2>Election Not Started</h2>
+        <p>The election has not started yet. Please check back later.</p>
+        <a href='/' >OK</a>
+      </div>
+    </div>
+  );
+}
 
 function App() {
   const [votingStatus, setVotingStatus] = useState(false);
@@ -19,272 +44,16 @@ function App() {
   const [candidates, setCandidates] = useState([]);
   const [CanVote, setCanVote] = useState(false); // false : voter already done voting
   const [voterID, setvoterID] = useState(null);
+  const [votingStartTime, setVotingStartTime] = useState(null);
+  const [votingEndTime, setVotingEndTime] = useState(null);
   const [winner, setWinner] = useState(null);
   const [voteData, setVoteData] = useState(null);
   const [contract, setContract] = useState(null);
-  const CONTRACT_ADDRESS ="0x7b665960A62eacD151D38b72fb3B82e94E1ee78e"
-  const PRIVATE_KEY = "b3409f6f45ef522faf29c052914d13511ac5c6515aea2d138c6b9d70341815cf"
-  const API_URL = "https://volta-rpc.energyweb.org"
-  const SimpleStorageABI = [
-    {
-      "inputs": [
-        {
-          "internalType": "string[]",
-          "name": "_candidateNames",
-          "type": "string[]"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "constructor"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "voterID",
-          "type": "string"
-        }
-      ],
-      "name": "VerifyVote",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "_name",
-          "type": "string"
-        }
-      ],
-      "name": "addCandidate",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "name": "candidates",
-      "outputs": [
-        {
-          "internalType": "string",
-          "name": "name",
-          "type": "string"
-        },
-        {
-          "internalType": "uint256",
-          "name": "voteCount",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "electionStarted",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_candidateIndex",
-          "type": "uint256"
-        }
-      ],
-      "name": "getCandidate",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "name",
-              "type": "string"
-            },
-            {
-              "internalType": "uint256",
-              "name": "voteCount",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct Voting.Candidate",
-          "name": "",
-          "type": "tuple"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getIndexOfMaxVoteCount",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getRemainingTime",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getVotingStatus",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "voterID",
-          "type": "string"
-        }
-      ],
-      "name": "hasVoted",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "lastcandidateindex",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "index",
-          "type": "uint256"
-        }
-      ],
-      "name": "removeCandidate",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_durationInMinutes",
-          "type": "uint256"
-        }
-      ],
-      "name": "startElection",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "voterID",
-          "type": "string"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_candidateIndex",
-          "type": "uint256"
-        }
-      ],
-      "name": "vote",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "votingEnd",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "votingStart",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    }
-  ]
+  const CONTRACT_ADDRESS = process.env.REACT_APP_CONTRACT_ADDRESS
+  const PRIVATE_KEY = process.env.REACT_APP_PRIVATE_KEY
+  const API_URL = process.env.REACT_APP_BLOCKCHAIN_API_URL
 
+  
   useEffect(() => {
     // async function fetchContract() {
       const provider = new ethers.JsonRpcProvider(API_URL);
@@ -303,15 +72,33 @@ function App() {
     }
 
   }, [contract]);
+  const prevVotingStartTimeRef = useRef();
+  const prevVotingEndTimeRef = useRef();
+  useEffect(() => {
+    console.log("votingStartTime, votingEndTime", votingStartTime, votingEndTime);
+
+    if (
+      prevVotingStartTimeRef.current !== votingStartTime &&
+      prevVotingEndTimeRef.current !== votingEndTime
+    ) {
+      checkElectionStartedStatus();
+    }
+
+    // Update the refs with the current values
+    prevVotingStartTimeRef.current = votingStartTime;
+    prevVotingEndTimeRef.current = votingEndTime;
+    console.log("electionStartedStatus, votingStatus", electionStartedStatus, votingStatus)
+  }, [votingStartTime, votingEndTime]);
 
   useEffect(() => {
-    
+    getVotingStartTime();
+    getVotingEndTime();
         getCandidates();
         
       }, [voterID]);
       
   useEffect( () => {
-    getRemainingTime();
+    // getRemainingTime();
     getCurrentStatus();
     console.log("electionStartedStatus...", electionStartedStatus)
   });
@@ -321,21 +108,105 @@ function App() {
     canVote();
   }, [voterID]);
 
-async function vote(candidate) {
+//   const checkElectionStartedStatus = () => {
+//     const currentTime = new Date().getTime();
+//     console.log("1111111111111111111111111111111111111111",currentTime);
+//     const startTime = new Date(Number(votingStartTime)).getTime();
+//     console.log("2222222222222222222222222222222222222222222",votingStartTime, startTime);
+//     const endTime = new Date(Number(votingEndTime)).getTime();
+// console.log("*************************************************",votingEndTime,  endTime);
+//     if (currentTime >= startTime) {
+//       setElectionStartedStatus(true);
+//     } else {
+//       setElectionStartedStatus(false);
+//     }
+//     if (currentTime <= endTime) {
+//       setVotingStatus(true);
+//     } else {
+//       setVotingStatus(false);
+//     }
+//   };
+
+
+const checkElectionStartedStatus = () => {
+  const currentTime = Date.now();
+  console.log("Current Time:", currentTime);
+
+  const startTime = Number(votingStartTime)* 1000; // Convert BigInt to number
+  console.log("Voting Start Time:", votingStartTime, startTime);
+
+  const endTime = Number(votingEndTime)* 1000; // Convert BigInt to number
+  console.log("Voting End Time:", votingEndTime, endTime);
+
+  if (currentTime >= startTime) {
+    setElectionStartedStatus(true);
+  } else {
+    setElectionStartedStatus(false);
+  }
+
+  if (currentTime <= endTime) {
+    setVotingStatus(true);
+  } else {
+    setVotingStatus(false);
+  }
+}
+
+  const setVotingStartEndTime = async (startDate, startTime, endDate, endTime) => {
+
+    const startDateTime = new Date(`${startDate}T${startTime}`).getTime() / 1000;
+    const endDateTime = new Date(`${endDate}T${endTime}`).getTime() / 1000;
+
+    try {
+      console.log("      const tx = await contract.setDates()", startDateTime, endDateTime)
+      await contract.setDates(startDateTime, endDateTime);
+      alert('Dates set successfully');
+    } catch (error) {
+      console.error('Error setting dates:', error);
+      alert('Error setting dates');
+    }
+  };
+
+  async function getVotingStartTime() {
+    try {
+      if (!contract) return;
+
+      const intr = await contract.getStartingTime();
+
+      setVotingStartTime(intr);
+    console.log("      const intr = await contract.getStartingTime()    ")
+    } catch (error) {
+      console.error('Error while checking voting status:', error);
+    }
+  }
+
+  async function getVotingEndTime() {
+    try {
+      if (!contract) return;
+
+      const intr = await contract.getEndingTime();
+
+      setVotingEndTime(intr);
+      console.log("      const intr = await contract.getEndingTime()    ")
+
+    } catch (error) {
+      console.error('Error while checking voting status:', error);
+    }
+  }
+async function vote(candidateID) {
   try {
     if (!contract) return;
 
-    console.log(voterID, candidate.index);
-    const tx = await contract.vote(voterID, parseInt(candidate.index, 10));
+    console.log(voterID, candidateID);
+    const tx = await contract.vote(voterID, candidateID);
 
     await tx.wait();
     console.log("voting successful");
     toast.success('Voting successful! Thank you for your voting!');
-    toast.success(`Your vote was recorded for candidate ${candidate.name}`);
+    toast.success(`Your vote was recorded for candidate ${candidateID}`);
     await canVote();
   } catch (error) {
     console.error('Error while voting:', error);
-    toast.error('Error while voting. Please try again later.');
+    // toast.error('Error while voting. Please try again later.');
     // Handle error gracefully (e.g., show an error message to the user)
   }
 }
@@ -343,6 +214,7 @@ async function vote(candidate) {
 async function canVote() {
   try {
     if (!contract) return;
+
 
     const voteStatus = await contract.hasVoted(voterID);
     console.log("voting done:", voteStatus);
@@ -364,8 +236,9 @@ async function canVote() {
 
 async function verifyVote() {
   try {
-    if (!contract) return;
-    if (CanVote) return;
+    if (!contract) return; console.log("5544444444455555",voteData, CanVote);
+    if (!CanVote) return;
+    console.log("5555555555");
     const [vote, voteIndex] = await contract.VerifyVote(voterID);
     const numberA = Number(vote);
     const numberB = Number(voteIndex);
@@ -397,26 +270,31 @@ async function verifyVote() {
 
 async function getCandidates() {
   try {
-    console.log("lastcandidateindex_next", contract);
+//     console.log("lastcandidateindex_next", contract);
 
-    if (!contract) return;
+//     if (!contract) return;
 
     const candidatesList = [];
-    const lastcandidateindex = parseInt( await contract.lastcandidateindex, 16); // Assuming you have a way to track the total count of candidates
-console.log("lastcandidateindex");
-    for (let i = 0; i <= lastcandidateindex; i++) {
-      const candidate = await contract.getCandidate(i);
-      console.log("candidate", candidate)
-      if(candidate.name){
-        candidatesList.push({
-          index: i,
-          name: candidate.name,
-          // voteCount: candidate.voteCount
-        });
-      }
-    }
-
-    setCandidates(candidatesList);
+//     const lastcandidateindex = parseInt( await contract.lastcandidateindex, 16); // Assuming you have a way to track the total count of candidates
+// console.log("lastcandidateindex");
+//     for (let i = 0; i <= lastcandidateindex; i++) {
+//       const candidate = await contract.getCandidate(i);
+//       console.log("candidate", candidate)
+//       if(candidate.name){
+//         candidatesList.push({
+//           index: i,
+//           name: candidate.name,
+//           // voteCount: candidate.voteCount
+//         });
+//       }
+//     }
+const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/candidates`);
+if (!response.ok) {
+  throw new Error('Network response was not ok');
+}
+const data = await response.json();
+console.log("candidateList.........from.........db", data)
+    setCandidates(data);
   } catch (error) {
     console.error('Error while fetching candidates:', error);
     // Handle error gracefully (e.g., show an error message to the user)
@@ -459,38 +337,57 @@ async function getWinnerName() {
   try {
     if (!contract) return;
 
-    const winner = Number(await contract.getIndexOfMaxVoteCount());
-    const candidate = await contract.getCandidate(winner);
-    setWinner(candidate.name);
+    // const winner = Number(await contract.getIndexOfMaxVoteCount());
+    // const candidate = await contract.getCandidate(winner);
+    // setWinner(candidate.name);
+
+
+    let maxVotes = 0;
+    let candidateWithMaxVotes = null;
+
+    for (let i = 0; i < candidates.length; i++) {
+      const candidateIndex = candidates[i].aadhaar_number;
+      const voteCount = await contract.getCandidate(candidateIndex);
+
+      if (voteCount > maxVotes) {
+        maxVotes = voteCount;
+        candidateWithMaxVotes = candidates[i];
+      }
+    }
+
+    if (candidateWithMaxVotes) {
+      setWinner(candidateWithMaxVotes.aadhaar_number);
+    }
   } catch (error) {
     console.error('Error while fetching winner name:', error);
     // Handle error gracefully (e.g., show an error message to the user)
   }
 }
 
-async function startElection(durationInMinutes) {
-  try {
-    if (!contract) return;
+// async function startElection(durationInMinutes) {
+//   try {
+//     if (!contract) return;
 
-    console.log(electionStartedStatus, "electionStartedStatus********");
-    await contract.startElection(durationInMinutes);
-    setElectionStartedStatus(true);
-    console.log(electionStartedStatus, "electionStartedStatus_______")
-    toast.success('Election has started!');
+//     console.log(electionStartedStatus, "electionStartedStatus********");
+//     await contract.startElection(durationInMinutes);
+//     setElectionStartedStatus(true);
+//     console.log(electionStartedStatus, "electionStartedStatus_______")
+//     toast.success('Election has started!');
 
-  } catch (error) {
-    console.error(error);
-    // Handle error gracefully (e.g., show an error message to the user)
-  }
-}
+//   } catch (error) {
+//     console.error(error);
+//     // Handle error gracefully (e.g., show an error message to the user)
+//   }
+// }
 
 
 async function electionStarted() {
   try {
-    if (!contract) return;
 
-    const status = await contract.electionStarted();
-    setElectionStartedStatus(status);
+    // if (!contract) return;
+
+    // const status = await contract.electionStarted();
+    // setElectionStartedStatus(status);
     // if(!electionStartedStatus) 
     //     {
     //       setvoterID(null);
@@ -513,17 +410,17 @@ async function getCurrentStatus() {
   }
 }
 
-async function getRemainingTime() {
-  try {
-    if (!contract) return;
+// async function getRemainingTime() {
+//   try {
+//     if (!contract) return;
 
-    const time = await contract.getRemainingTime();
-    setremainingTime(parseInt(time, 16));
-  } catch (error) {
-    console.error('Error while fetching remaining time:', error);
-    // Handle error gracefully (e.g., show an error message to the user)
-  }
-}
+//     const time = await contract.getRemainingTime();
+//     setremainingTime(parseInt(time, 16));
+//   } catch (error) {
+//     console.error('Error while fetching remaining time:', error);
+//     // Handle error gracefully (e.g., show an error message to the user)
+//   }
+// }
 
 const logout = () => {
   setvoterID(null);
@@ -532,14 +429,15 @@ const logout = () => {
 
   return (
     <div className="App">
-      <Navbar/>
+      
       <Router>
         <Routes>
           <Route path="/" element={<Welcome/>} />
-          <Route path="/admin" element={<Admin startElection={startElection} handleAddCandidate={handleAddCandidate} handleRemoveCandidate={handleRemoveCandidate} getCandidates={getCandidates} candidates = {candidates}/>} />
+          <Route path="/admin" element={<Admin setVotingStartEndTime={setVotingStartEndTime} getVotingStartTime={getVotingStartTime} getVotingEndTime={getVotingEndTime} handleAddCandidate={handleAddCandidate} handleRemoveCandidate={handleRemoveCandidate} getCandidates={getCandidates} candidates = {candidates}/>} />
           <Route path="/register" element={<Registration/>} />
+          <Route path="/candidates" element={<Candidates/>} />
           <Route path="/voter"
-            element={ 
+            element={  
               (voterID !== null) ? 
                   (electionStartedStatus?
               ( votingStatus ?
@@ -552,13 +450,13 @@ const logout = () => {
                     vote = {vote}
                     CanVote = {CanVote}/>)
               :  (<Finished  getWinnerName = {getWinnerName} winner = {winner} verifyVote = {verifyVote} voteData = {voteData} logout = {logout} not_voted = {CanVote}/>))
-                    :(<div className='text-white'>election not started, reload the page</div>))
+                    :<VotingNotStartedDisplay/>)
               :
-              <PhoneNoLogin setvoterID = {setvoterID}/>
+              <PhoneNoLogin setvoterID = {setvoterID} />
             } />
         </Routes>
     </Router>
-      
+      <GoToMenu/>
       <Toaster />
     </div>
   );

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 const Finished = (props) => {
   props.getWinnerName();
 
-  if(!props.not_voted) props.verifyVote(); // Invoke the async function
+  // if(!props.not_voted) props.verifyVote(); // Invoke the async function
 
   return (
     <div className="login-container p-4 rounded-lg shadow-sm finished-container">
