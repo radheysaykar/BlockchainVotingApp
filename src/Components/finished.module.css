@@ -1,0 +1,83 @@
+/* Finished.module.css */
+
+.finishedContainer {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #f8f9fa; /* Light grey background for the container */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Light shadow for depth */
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+  }
+  
+  .bgDarkTransparent {
+    background-color: rgba(0, 0, 0, 0.75); /* Dark transparent background */
+    color: #fff; /* White text color */
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .textWhite {
+    color: #fff; /* White text color */
+  }
+  
+  .text3xl {
+    font-size: 2rem; /* Font size 2rem for large text */
+  }
+  
+  .fontWeightBold {
+    font-weight: 700; /* Bold text */
+  }
+  
+  .textLg {
+    font-size: 1.25rem; /* Font size 1.25rem for larger text */
+  }
+  
+  .mb4 {
+    margin-bottom: 1.5rem; /* Margin bottom 1.5rem */
+  }
+  
+  .mt4 {
+    margin-top: 1.5rem; /* Margin top 1.5rem */
+  }
+  
+  .px4 {
+    padding-left: 1.5rem; /* Padding left 1.5rem */
+    padding-right: 1.5rem; /* Padding right 1.5rem */
+  }
+  
+  .py2 {
+    padding-top: 0.75rem; /* Padding top 0.75rem */
+    padding-bottom: 0.75rem; /* Padding bottom 0.75rem */
+  }
+  
+  .btn {
+    display: inline-block;
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    user-select: none;
+    border: 1px solid transparent;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: 0.375rem;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  }
+  
+  .btnDanger {
+    color: #fff;
+    background-color: #dc3545; /* Red background for danger button */
+    border-color: #dc3545;
+  }
+  
+  .btnDanger:hover {
+    color: #fff;
+    background-color: #c82333;
+    border-color: #bd2130;
+  }
+  
+  .textCenter {
+    text-align: center; /* Center aligned text */
+  }

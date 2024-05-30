@@ -60,26 +60,34 @@ contract Voting {
         votingEnd = block.timestamp + (_durationInMinutes * 1 minutes);
     }    
 */
+    function addCandidate(string memory aadhaar, string memory candidateHash) public {
+        require(bytes(aadhaar).length > 0, "Aadhaar must be a non-empty string");
+        require(bytes(candidateHash).length > 0, "Candidate hash must be a non-empty string");
+        require(candidates[aadhaar].voteCount == 0, "Candidate already exists");
+
+        candidates[aadhaar] = Candidate(candidateHash, 0);
+    }
 
     function setDates(uint256 _startDateTime, uint256 _endDateTime) public {
-        require(votingEnd == 0 && votingStart == 0, "Voting dates already set");
+        //require(votingEnd == 0 && votingStart == 0, "Voting dates already set");
        // require(_startDateTime > block.timestamp, "Start date and time must be in the future");
         require(_endDateTime > _startDateTime, "End date and time must be after the start date and time");
         
         votingStart = _startDateTime;
         votingEnd = _endDateTime;
     }
+     /*  
 
     function addCandidate(string memory _name) public onlyOwner {
-      /*  require(electionStartedFlag == false, "Election started");
+     require(electionStartedFlag == false, "Election started");
 
         candidates[lastcandidateindex + 1] = (Candidate({
                 name: _name,
                 voteCount: 0
         }));
 
-        lastcandidateindex++;*/
-    }
+        lastcandidateindex++;
+    }*/
 
   /*  function removeCandidate(uint256 index) public onlyOwner {
         require(electionStartedFlag == false, "Election started");
@@ -115,7 +123,7 @@ contract Voting {
         return electionStartedFlag;
     } 
 
-    function getCandidate(string _candidateIndex) public view returns (Candidate memory){
+    function getCandidate(string memory _candidateIndex) public view returns (uint256){
         return candidates[_candidateIndex].voteCount;
     }
 
@@ -143,19 +151,5 @@ contract Voting {
 
     return votingEnd;
     }
-    function getIndexOfMaxVoteCount() public view returns (string) {
-        require(lastcandidateindex >= 0, "No candidates available.");
 
-        uint256 maxVoteCount = 0;
-        uint256 indexOfMaxVoteCount = 0;
-
-        for (uint256 i = 0; i <= lastcandidateindex; i++) {
-            if (candidates[i].voteCount > maxVoteCount) {
-                maxVoteCount = candidates[i].voteCount;
-                indexOfMaxVoteCount = i;
-            }
-        }
-
-        return indexOfMaxVoteCount;
-    }
 }

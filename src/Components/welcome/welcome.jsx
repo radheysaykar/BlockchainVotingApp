@@ -154,7 +154,7 @@ const Navbar = () => {
 
         <nav className={styles.navbar}>
             <div className={styles.navbar_left}>
-                <a href="#home">Home</a>
+                {/* <a href="#home">Home</a> */}
             </div>
             <div className={styles.navbar_center}>
                 <input type="text" placeholder="Search..." className= {styles.search_box} />

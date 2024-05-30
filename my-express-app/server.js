@@ -21,7 +21,7 @@ app.use((err, req, res, next) => {
 async function executeQuery(sql, params) {
   try {
     const results = await query(sql, params);
-    
+    console.log("    const results = await query(sql, params)...............    ", results)
     return results;
   } catch (err) {
     console.error('Database query failed:', err.message);  // Log the actual error message
@@ -80,8 +80,9 @@ app.get('/getPhoneNumber', async (req, res, next) => {
     if (results.length === 0) {
       return res.status(404).json({ error: 'Phone number not found for the provided Aadhaar number' });
     }
+        console.log("***************res",results);
+
     res.json({ phoneNumber: results[0][0].phone_number });
-    // console.log("***************res",results[0][0].phone_number);
 
   } catch (err) {
     next(err);
@@ -106,8 +107,29 @@ app.post('/addUser', async (req, res, next) => {
   if (!aadhaarNumber || !fullName || !dob || !phone) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
-
+    // Validate DOB and calculate age
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDifference = today.getMonth() - birthDate.getMonth();
+  
+    // Adjust age if the birth date hasn't occurred yet this year
+    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+  
+    if (age < 18) {
+      return res.status(400).json({ error: 'User must be at least 18 years old' });
+    }
+  
   try {
+    const existingUsers = await executeQuery('SELECT * FROM users WHERE aadhaar_number = ?', [aadhaarNumber]);
+    if (existingUsers[0].length > 0) {
+      console.log("existingUsers.....",existingUsers)
+
+      return res.status(400).json({ message: 'Voter already exists' });
+    }
+
     await executeQuery(
       'INSERT INTO users (aadhaar_number, name, dob, phone_number) VALUES (?, ?, ?, ?)',
       [aadhaarNumber, fullName, dob, phone]
@@ -138,8 +160,28 @@ app.post('/addCandidate', async (req, res, next) => {
   if (!aadhaar || !fullName || !dob || !phone || !party) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
-
+  
+     // Validate DOB and calculate age
+     const birthDate = new Date(dob);
+     const today = new Date();
+     let age = today.getFullYear() - birthDate.getFullYear();
+     const monthDifference = today.getMonth() - birthDate.getMonth();
+   
+     // Adjust age if the birth date hasn't occurred yet this year
+     if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+       age--;
+     }
+   
+     if (age < 18) {
+       return res.status(400).json({ error: 'User must be at least 18 years old' });
+     }
+  
   try {
+    const existingUsers = await executeQuery('SELECT * FROM candidates WHERE aadhaar_number = ?', [aadhaar]);
+    if (existingUsers[0].length > 0) {
+      console.log("existingUsers.....",existingUsers)
+      return res.status(400).json({ message: 'Candidate already exists' });
+    }
     await executeQuery(
       'INSERT INTO candidates (aadhaar_number, name, dob, phone_number, party, address, email, signature, state, education, background, experience, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
@@ -151,6 +193,26 @@ app.post('/addCandidate', async (req, res, next) => {
     next(err);
   }
 });
+
+// Delete candidate by Aadhaar number
+app.delete('/candidate/:aadhaar_number', async (req, res) => {
+  const aadhaarNumber = req.params.aadhaar_number;
+//DELETE	http://localhost:3000/candidate/121212121212
+  const query = 'DELETE FROM candidates WHERE aadhaar_number = ?';
+  
+  try {
+      const results = await executeQuery(query, [aadhaarNumber]);
+      if (results.affectedRows === 0) {
+          res.status(404).send('Candidate not found');
+      } else {
+          res.status(200).send('Candidate deleted successfully');
+      }
+  } catch (err) {
+      console.error('Error deleting candidate:', err.message);
+      res.status(500).send('Server error');
+  }
+});
+
 
 app.get('/candidates', async (req, res) => {
   const sql = 'SELECT * FROM candidates';

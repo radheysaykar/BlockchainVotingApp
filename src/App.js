@@ -11,18 +11,19 @@ import Candidates from './Components/candidates/Candidates.jsx';
 import Registration from './Components/registration/registration.jsx';
 import Connected from './Components/connected/Connected.jsx';
 import SimpleStorageABI from './MyContractABI.json';
+import bcrypt from 'bcryptjs';
   
 // import './App.css';  
 function GoToMenu() {
   return (
-    <div style={{ position: 'fixed', up: '20px', right: '20px' }}>
+    <div style={{ position: 'fixed', up: '0', left: '0', fontSize: 25, padding: 25}}>
       <a href="/">
-        Go to the Main Page
+      🏠
       </a>
     </div>
   );
 }
-
+ 
 
 function VotingNotStartedDisplay() {
 
@@ -47,6 +48,8 @@ function App() {
   const [votingStartTime, setVotingStartTime] = useState(null);
   const [votingEndTime, setVotingEndTime] = useState(null);
   const [winner, setWinner] = useState(null);
+  const [winnerParty, setWinnerParty] = useState(null);
+
   const [voteData, setVoteData] = useState(null);
   const [contract, setContract] = useState(null);
   const CONTRACT_ADDRESS = process.env.REACT_APP_CONTRACT_ADDRESS
@@ -99,7 +102,7 @@ function App() {
       
   useEffect( () => {
     // getRemainingTime();
-    getCurrentStatus();
+    // getCurrentStatus();
     console.log("electionStartedStatus...", electionStartedStatus)
   });
 
@@ -287,14 +290,16 @@ async function getCandidates() {
 //           // voteCount: candidate.voteCount
 //         });
 //       }
-//     }
+//     } 
 const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/candidates`);
 if (!response.ok) {
   throw new Error('Network response was not ok');
 }
 const data = await response.json();
-
-    setCandidates(data);
+const flattenedCandidates = Array.isArray(data) && data.length > 0 
+        ? data[0].flat()
+        : [];
+    setCandidates(flattenedCandidates);
     console.log("candidateList.........from.........db", candidates)
   } catch (error) {
     console.error('Error while fetching candidates:', error);
@@ -333,32 +338,59 @@ const handleRemoveCandidate = async (index) => {
   }
 };
 
+const hashJson = async (candidate) => {
+  // Ensure the JSON object is sorted consistently
+  const sortedCandidate = JSON.stringify(candidate, Object.keys(candidate).sort());
+
+  // Generate a salt and hash the sorted JSON string
+  const salt = await bcrypt.genSalt(10);
+  const hash = await bcrypt.hash(sortedCandidate, salt);
+
+  return hash;
+};
+
+
+const hashStoreCandidate = async (candidate) => {
+  if(!candidate) return;
+
+
+  try {
+    const candidateHash = await hashJson(candidate);
+
+      await contract.addCandidate(candidate.aadhaar_number, candidateHash);
+      alert('Candidate added successfully!');
+  } catch (error) {
+      console.error('Error adding candidate:', error);
+      // alert('Error adding candidate.');
+  }
+};
 
 async function getWinnerName() {
   try {
     if (!contract) return;
-
-    // const winner = Number(await contract.getIndexOfMaxVoteCount());
-    // const candidate = await contract.getCandidate(winner);
-    // setWinner(candidate.name);
-
 
     let maxVotes = 0;
     let candidateWithMaxVotes = null;
 
     for (let i = 0; i < candidates.length; i++) {
       const candidateIndex = candidates[i].aadhaar_number;
+      console.log("const candidateIndex = candidates[i].aadhaar_number;", candidateIndex)
       const voteCount = await contract.getCandidate(candidateIndex);
 
-      if (voteCount > maxVotes) {
+      if (voteCount >= maxVotes) { 
         maxVotes = voteCount;
         candidateWithMaxVotes = candidates[i];
       }
     }
 
     if (candidateWithMaxVotes) {
-      setWinner(candidateWithMaxVotes.aadhaar_number);
+      console.log("const candidateIndex = candidates[i].aadhaar_number----------------;", candidateWithMaxVotes, candidateWithMaxVotes.party)
+      console.log("const ----------------;", candidateWithMaxVotes.party)
+
+      setWinner(candidateWithMaxVotes.name);
+      setWinnerParty(candidateWithMaxVotes.party);
     }
+    console.log("winner.......", winner)
   } catch (error) {
     console.error('Error while fetching winner name:', error);
     // Handle error gracefully (e.g., show an error message to the user)
@@ -430,13 +462,16 @@ const logout = () => {
 
   return (
     <div className="App">
-      
+            <GoToMenu/>
+
       <Router>
         <Routes>
           <Route path="/" element={<Welcome/>} />
-          <Route path="/admin" element={<Admin setVotingStartEndTime={setVotingStartEndTime} getVotingStartTime={getVotingStartTime} getVotingEndTime={getVotingEndTime} handleAddCandidate={handleAddCandidate} handleRemoveCandidate={handleRemoveCandidate} getCandidates={getCandidates} candidates = {candidates}/>} />
+          <Route path="/admin" element={<Admin hashStoreCandidate={hashStoreCandidate} setVotingStartEndTime={setVotingStartEndTime} getVotingStartTime={getVotingStartTime} getVotingEndTime={getVotingEndTime} handleAddCandidate={handleAddCandidate} handleRemoveCandidate={handleRemoveCandidate} getCandidates={getCandidates} candidates = {candidates}/>} />
           <Route path="/register" element={<Registration/>} />
           <Route path="/candidates" element={<Candidates/>} />
+          {/* <Route path="/candidateprofile" element={<CandidateProfile candidate={candidate}/>} /> */}
+
           <Route path="/voter"
             element={  
               (voterID !== null) ? 
@@ -450,14 +485,13 @@ const logout = () => {
                     candidates = {candidates}
                     vote = {vote}
                     CanVote = {CanVote}/>)
-              :  (<Finished  getWinnerName = {getWinnerName} winner = {winner} verifyVote = {verifyVote} voteData = {voteData} logout = {logout} not_voted = {CanVote}/>))
+              :  (<Finished  getWinnerName = {getWinnerName} winnerParty={winnerParty} winner = {winner} verifyVote = {verifyVote} voteData = {voteData} logout = {logout} not_voted = {CanVote}/>))
                     :<VotingNotStartedDisplay/>)
               :
               <PhoneNoLogin setvoterID = {setvoterID} />
             } />
         </Routes>
     </Router>
-      <GoToMenu/>
       <Toaster />
     </div>
   );

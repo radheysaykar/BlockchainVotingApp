@@ -14,7 +14,12 @@
     "inputs": [
       {
         "internalType": "string",
-        "name": "_name",
+        "name": "aadhaar",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "candidateHash",
         "type": "string"
       }
     ],
@@ -35,7 +40,7 @@
     "outputs": [
       {
         "internalType": "string",
-        "name": "name",
+        "name": "candidateHash",
         "type": "string"
       },
       {
@@ -55,6 +60,25 @@
         "internalType": "bool",
         "name": "",
         "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_candidateIndex",
+        "type": "string"
+      }
+    ],
+    "name": "getCandidate",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -81,19 +105,6 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getVotingStatus",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
       }
     ],
     "stateMutability": "view",

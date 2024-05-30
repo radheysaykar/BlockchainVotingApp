@@ -10,14 +10,7 @@ const Connected = (props) => {
         props.vote(candidate);
         setLoading(false);
     };
-    // const flattenedCandidates = props.candidates[0].flat();
-
-        // Flatten candidates if the structure is an array of arrays
-        const flattenedCandidates = Array.isArray(props.candidates) && props.candidates.length > 0 
-        ? props.candidates[0].flat()
-        : [];
-
-        console.log("flattenedCandidates", flattenedCandidates);
+    
     return (
         
 //     <div className="connected-container">
@@ -89,7 +82,7 @@ const Connected = (props) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {flattenedCandidates.map((candidate, index) => (
+                    {props.candidates.map((candidate, index) => (
                         <tr key={index} className="table-row">
                             <td className="table-cell">{candidate.name}</td>
                             <td className="table-cell">{candidate.party}</td>

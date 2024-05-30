@@ -2,7 +2,7 @@
 
 .container {
     min-height: 100vh;
-    background-color: #f7fafc;
+    background: url('1.jpeg') no-repeat center center fixed;
     display: flex;
     align-items: center;
     justify-content: center;

@@ -1,0 +1,87 @@
+.loginSection {
+  background: url('1.jpeg') no-repeat center center fixed; /* Ensure the path is correct */
+  background-size: cover;
+  height: 100vh; /* Full height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.homeButton {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  cursor: pointer;
+}
+
+.formContainer {
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 20px;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.otpBox, .loginBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.9); /* White background for the box */
+  padding: 30px;
+  border-radius: 10px;
+}
+
+.otpInput input {
+  width: 100%;
+  text-align: center;
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+}
+
+.otpInput {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.formControl {
+  margin-top: 20px;
+  font-size: 1rem;
+  padding: 10px;
+  width: 100%;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.btn {
+  margin-top: 20px;
+  font-size: 1rem;
+  padding: 10px;
+  width: 100%;
+  border-radius: 5px;
+}
+
+.bgDarkTransparent {
+  background-color: rgba(0, 0, 0, 0.7); /* Dark transparent background */
+}
+
+.textLight {
+  color: white;
+}
+
+.mt1AnimateSpin {
+  margin-top: 1rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
